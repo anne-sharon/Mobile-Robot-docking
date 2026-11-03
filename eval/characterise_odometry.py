@@ -1,9 +1,3 @@
-"""How much does odometry drift?  (Sets the EKF process noise Q.)
-Run from the repo root:  python -m eval.characterise_odometry
-Runs docking episodes from several start poses and, at every 0.05 s control step, compares the motion the EKF
-predicts from the encoders + gyro with the robot's true motion (evaluation only). Fits
-    var(error) = k^2 * motion^2 + floor^2
-separately for distance (ds) and heading (dth). Writes models/odometry_noise.json."""
 import os, json, math
 import numpy as np
 from src.world import Sim, WHEEL_R
