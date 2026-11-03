@@ -1,12 +1,3 @@
-"""Ground-truth frame conversions. Evaluation only -- the robot code never imports this file.
-
-Frames (all planar, z up):
-  world  : the simulator's room frame (x east, y north), origin at the room centre.
-  start  : the robot's pose when the run starts (odometry frame).
-  dock   : origin at the ArUco marker centre, +x pointing out of the marker into the room, +y to its left.
-  base   : the robot (x forward, y left), origin at the wheel-axle midpoint.
-  camera : OpenCV (x right, y down, z forward), 0.04 m ahead of base.
-"""
 import math
 from src.world import DOCK_FACE_X, DOCK_Y
 
