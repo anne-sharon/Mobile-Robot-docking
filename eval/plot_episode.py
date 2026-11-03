@@ -1,6 +1,3 @@
-"""Run one episode and draw the robot's path on the overhead view (evaluation only).
-Run from the repo root:  python -m eval.plot_episode
-Saves eval/results/docking_path.png"""
 import os
 import matplotlib
 import matplotlib.pyplot as plt
