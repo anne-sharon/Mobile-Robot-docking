@@ -4,7 +4,7 @@
 
 A simulated TurtleBot3 Burger (MuJoCo) crosses a room with obstacles, finds the charging dock marked with an ArUco tag, and parks in front of it. It uses only its camera, LiDAR, wheel encoders and gyro.
 
-**Project page:** https://anne-sharon.github.io/Mobile-robot-docking/ (state-space model, frame diagram, EKF and LQR design with parameter values, results, video, contributions, AI declaration)
+**Project page:** https://github.com/anne-sharon/Mobile-Robot-docking (state-space model, frame diagram, EKF and LQR design with parameter values, results, video, contributions, AI declaration)
 
 ## Run it
 
