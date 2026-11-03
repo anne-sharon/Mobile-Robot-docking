@@ -41,6 +41,7 @@ The calibration and noise parameters in `models/` are regenerated with `python -
 **Ground truth rule:** the robot code (`estimator.py`, `planner.py`, `control.py`, `marker.py`, `model.py`, `contracts.py`) never imports `judge.py` or anything in `eval/`. The controller acts on the EKF estimate only.
 
 ## Team
+- **GROUP 94**
 - **Anne** (26202693)
 - **Vishnu** (26224699)
 
