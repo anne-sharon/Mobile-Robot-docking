@@ -1,0 +1,8 @@
+mujoco
+numpy
+scipy
+opencv-python
+matplotlib
+imageio
+imageio-ffmpeg
+pytest

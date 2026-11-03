@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MoBot EKF Docking</title>
+  <!-- Nunito Sans is a free backup font that looks close to Avenir Next on computers that don't have it -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --burgundy: #4a0f1f;
+      --burgundy-deep: #2e0812;
+      --burgundy-soft: #6b1a2e;
+      --cream: #f6eee9;
+      --card: #fffaf7;
+      --text: #2a1418;
+      --muted: #7a5a60;
+      --border: #ead9d3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--text);
+      font-family: "Avenir Next", "Avenir", "Nunito Sans", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+    header {
+      background: linear-gradient(160deg, var(--burgundy-deep), var(--burgundy) 60%, var(--burgundy-soft));
+      color: var(--cream);
+      padding: 72px 16px 64px;
+      text-align: center;
+    }
+    header .tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px solid rgba(246, 238, 233, 0.4);
+      border-radius: 999px;
+      padding: 4px 14px;
+      margin-bottom: 18px;
+    }
+    header h1 {
+      font-size: clamp(1.9rem, 5vw, 3rem);
+      font-weight: 700;
+      margin: 0 auto 14px;
+      max-width: 760px;
+      line-height: 1.2;
+    }
+    header p { margin: 0; opacity: 0.85; }
+    main { max-width: 820px; margin: 0 auto; padding: 48px 16px; }
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.35rem;
+      color: var(--burgundy);
+    }
+    h3 { margin: 0 0 4px; color: var(--burgundy); font-size: 1.1rem; }
+    .id { color: var(--muted); font-size: 0.9rem; margin: 0 0 12px; }
+    .team { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .member {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-top: 5px solid var(--burgundy);
+      border-radius: 12px;
+      padding: 22px 24px;
+    }
+    .member ul { margin: 0; padding-left: 20px; }
+    .member p, li, td { overflow-wrap: anywhere; }
+    .placeholder { color: var(--muted); font-style: italic; }
+    figure { margin: 16px 0 8px; }
+    figure img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border); display: block; }
+    figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 8px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+    .stat { background: var(--cream); border-radius: 10px; padding: 14px; text-align: center; }
+    .stat b { display: block; font-size: 1.5rem; color: var(--burgundy); line-height: 1.2; }
+    .stat span { font-size: 0.85rem; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--burgundy); }
+    ol.steps { padding-left: 22px; }
+    ol.steps li { margin-bottom: 10px; }
+    code { background: var(--cream); padding: 1px 6px; border-radius: 4px; font-size: 0.9em; }
+    header .links { margin-top: 14px; }
+    header a { color: var(--cream); font-weight: 600; }
+    a { color: var(--burgundy-soft); }
+    .eq { background: var(--cream); border-radius: 8px; padding: 10px 14px; overflow-x: auto; }
+    .note, .muted { color: var(--muted); font-size: 0.9rem; }
+    section table { display: block; overflow-x: auto; }
+    section ul li { margin-bottom: 6px; }
+    .refs li { margin-bottom: 4px; font-size: 0.92rem; }
+    sup a { text-decoration: none; font-weight: 600; }
+    footer {
+      background: var(--burgundy-deep);
+      color: var(--cream);
+      text-align: center;
+      padding: 24px 16px;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 640px) {
+      .team { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      section, .member { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="tag">41014 Sensors and Control · Integrated Project · Track A</div>
+    <h1>MoBot: Visual Navigation and Docking with an EKF and LQR</h1>
+    <p>Anne (26202693) &amp; Vishnu (26224699)</p>
+    <p class="links"><a href="https://github.com/anne-sharon/Mobile-Robot-docking">Code on GitHub</a> ·
+      <a href="https://colab.research.google.com/github/anne-sharon/Mobile-Robot-docking/blob/main/notebooks/run_docking.ipynb">Run in Colab</a> ·
+      <a href="#video">Demo video</a></p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Summary</h2>
+      <p>A simulated TurtleBot3 Burger in MuJoCo<sup><a href="#r3">[3]</a></sup> crosses a room with obstacles, finds a charging dock marked with an ArUco tag, and parks 0.35 m in front of it. An EKF fuses wheel odometry and the gyro with the tag's pose from the camera, and an LQR controller steers on that estimate. The controller never uses the simulator's true pose; ground truth is used only to score the runs (<code>src/judge.py</code>, <code>eval/</code>).</p>
+      <div class="stats">
+        <div class="stat"><b>120/120</b><span>runs parked (6 conditions)</span></div>
+        <div class="stat"><b>0</b><span>collisions</span></div>
+        <div class="stat"><b>1.3 cm</b><span>mean parking error</span></div>
+        <div class="stat"><b>4 mm</b><span>mean final estimate error</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>A docking run</h2>
+      <figure><img src="media/episode_stages.png" alt="Four overhead screenshots of one run: the robot spinning at the start, driving up the left wall to explore, steering between the boxes towards the dock, and following the dock's centre line in">
+        <figcaption>Default start. Coloured line = true path (colour = planner stage); white line and ellipse = EKF estimate and its 2&sigma; position uncertainty.</figcaption></figure>
+      <figure><img src="media/episode_parked.png" alt="Final frame: robot parked at the dock, the camera view of the tag, and charts of estimation error with the EKF's plus or minus two sigma band">
+        <figcaption>Parked: overhead view, the robot's camera, and the estimate error (blue) inside the EKF's &plusmn;2&sigma; band (shaded) over the whole run.</figcaption></figure>
+    </section>
+
+    <section>
+      <h2>Model</h2>
+      <p>Unicycle kinematics, state [x, y, &theta;], input [v, &omega;]: &nbsp;x&#775; = v cos&theta;, y&#775; = v sin&theta;, &theta;&#775; = &omega;, with v = r(&omega;<sub>R</sub>+&omega;<sub>L</sub>)/2 and &omega; = r(&omega;<sub>R</sub>&minus;&omega;<sub>L</sub>)/b. Wheel radius r = 0.033 m and separation b = 0.160 m<sup><a href="#r2">[2]</a></sup>; speed limits 0.22 m/s and 2.84 rad/s<sup><a href="#r1">[1]</a></sup>. Assumed: flat floor, no wheel slip. Slip does happen when turning on the spot, so the EKF takes rotation from the gyro.</p>
+      <p>For the controller, the model is linearised about a straight reference line at speed v (e<sub>y</sub> = sideways error, e<sub>&theta;</sub> = heading error): <code>e&#775; = [[0, v], [0, 0]] e + [[0], [1]] &omega;</code>.</p>
+      <table>
+        <tr><th>Check (<code>src/model.py</code>)</th><th>Rank</th><th>Meaning</th></tr>
+        <tr><td>Tracking error, v &gt; 0</td><td>2 / 2</td><td>Controllable while moving</td></tr>
+        <tr><td>Tracking error, v = 0</td><td>1 / 2</td><td>Sideways error can't be corrected on the spot</td></tr>
+        <tr><td>Pose from one tag measurement</td><td>3 / 3</td><td>Observable whenever the tag is in view</td></tr>
+        <tr><td>Pose from odometry only</td><td>0 / 3</td><td>Not observable: error grows until the tag is seen</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Frames</h2>
+      <figure><img src="media/frames.svg" alt="Top-view frame diagram: world frame, start frame, dock frame at the marker, robot base frame with the camera 4 cm ahead, and OpenCV camera axes"></figure>
+      <p>Camera (OpenCV: x right, y down, z forward) &rarr; robot base (ahead = 0.04 + z, left = &minus;x) &rarr; dock frame, where the EKF's state lives &rarr; the controller's sideways and heading errors. The EKF runs in the start frame until the tag is first seen.</p>
+    </section>
+
+    <section>
+      <h2>Sensing</h2>
+      <ul>
+        <li><strong>Camera calibration</strong> with a 9&times;6 checkerboard at 40 poses, using Zhang's method<sup><a href="#r4">[4]</a></sup>: RMS reprojection error 0.06 px; focal length within 0.02% of the simulator's value (<code>models/camera_calibration.json</code>).</li>
+        <li><strong>Tag pose</strong> from the four corners with OpenCV's <code>solvePnP</code>, IPPE-square method<sup><a href="#r5">[5]</a></sup>.</li>
+        <li><strong>Measured noise</strong> at 400 known poses (0.4&ndash;3.6 m). The camera reads distance too long by 0.0075&middot;d&sup2; (+7 cm at 3 m), which we subtract. The remaining spread, &sigma;(d) = a + b&middot;d&sup2;, sets the EKF's R. 4% of angle readings were off by more than 15&deg;, and the EKF rejects them.</li>
+      </ul>
+      <figure><img src="media/camera_noise.png" alt="Scatter plots of the camera measurement error against distance for ahead, left and angle, with the fitted bias and plus or minus two sigma bands">
+        <figcaption>Tag measurement error against distance: raw (grey), bias-corrected (blue), &plusmn;2&sigma; model used for R (red).</figcaption></figure>
+    </section>
+
+    <section>
+      <h2>Estimation: EKF</h2>
+      <ul>
+        <li><strong>State</strong> [x, y, &theta;] with covariance P. <strong>Predict</strong> at 20 Hz from the encoders (distance) and the gyro (rotation). Q is from odometry errors measured over 3,778 steps (<code>models/odometry_noise.json</code>).</li>
+        <li><strong>Update</strong> at up to 5 Hz from the tag pose, with R(d) from the noise model above. Readings with a Mahalanobis distance above 11.34 (the 99% &chi;&sup2; value for 3 degrees of freedom<sup><a href="#r8">[8]</a></sup>) are rejected; 6 rejections in a row trigger a re-fix from the tag.</li>
+        <li><strong>Tuning:</strong> with the measured Q and R, NEES (which should average 3 for a consistent 3-state filter<sup><a href="#r7">[7]</a></sup>) was about 30, because the errors are correlated from step to step. A sweep of 12 settings chose <strong>Q &times; 4, R &times; 16</strong>: NEES 2.1 and 1.1 cm estimate error near the dock.</li>
+      </ul>
+      <figure><img src="media/ekf_error.png" alt="Time plots of EKF error in x, y and heading with plus or minus two sigma bands, and NEES over time">
+        <figcaption>Default start. Before the first tag fix (dashed line) only odometry is available, so the band grows. The first fix, from 5.4 m, is rough but inside the band; error and band then shrink together.</figcaption></figure>
+    </section>
+
+    <section>
+      <h2>Control: planner and LQR</h2>
+      <p><strong>Planner:</strong> search (spin) &rarr; explore (LiDAR picks an open, unvisited spot) &rarr; approach a point 0.8 m in front of the dock &rarr; align &rarr; dock along the centre line &rarr; square-up (turn on the spot to within 1&deg;). Obstacles: a 0.4 m wide, 0.7 m long corridor ahead is checked in the LiDAR scan; if blocked, the robot steers to the nearest clear direction.</p>
+      <p><strong>LQR</strong> on the EKF estimate: &omega; = &minus;K(v)&middot;[e<sub>y</sub>, e<sub>&theta;</sub>]. Weights by Bryson's rule<sup><a href="#r6">[6]</a></sup>: Q = diag(1/0.05&sup2;, 1/(10&deg;)&sup2;), R = 1/(1 rad/s)&sup2;. K is recomputed for the current speed (gain scheduling); the turn rate is capped at 1.5 rad/s.</p>
+      <table>
+        <tr><th>v (m/s)</th><th>K = [k<sub>y</sub>, k<sub>&theta;</sub>]</th><th>Closed-loop poles (1/s)</th></tr>
+        <tr><td>0.02</td><td>[20.0, 5.80]</td><td>&minus;0.07, &minus;5.73</td></tr>
+        <tr><td>0.12</td><td>[20.0, 6.13]</td><td>&minus;0.42, &minus;5.71</td></tr>
+        <tr><td>0.20</td><td>[20.0, 6.39]</td><td>&minus;0.70, &minus;5.69</td></tr>
+      </table>
+      <p>The slow pole is about &minus;3.5&middot;v, so sideways error fades slowly at docking speed. One early run parked 5.3&deg; crooked for this reason, which is why the square-up stage was added.</p>
+    </section>
+
+    <section>
+      <h2>Results</h2>
+      <p>The same 20 start poses under 6 conditions (<code>eval/run_batch.py</code>). Disturbances are added between the simulator and the robot; push and occlusion trigger by distance to the dock, and every run was confirmed disturbed.</p>
+      <table><tr><th>Condition</th><th>Parked</th><th>Parking error, mean / worst</th><th>Estimate error near dock</th><th>NEES</th></tr><tr><td>Nominal</td><td>20/20</td><td>1.3 / 1.9 cm</td><td>1.2 cm</td><td>2.9</td></tr><tr><td>Gyro noise + bias</td><td>20/20</td><td>1.3 / 2.7 cm</td><td>1.3 cm</td><td>4.4</td></tr><tr><td>Camera pixel noise</td><td>20/20</td><td>1.2 / 1.9 cm</td><td>1.2 cm</td><td>2.7</td></tr><tr><td>Push near the dock</td><td>20/20</td><td>1.2 / 1.8 cm</td><td>1.4 cm</td><td>3.7</td></tr><tr><td>Camera blocked 6 s</td><td>20/20</td><td>1.4 / 2.8 cm</td><td>2.0 cm</td><td>2.7</td></tr><tr><td>Gyro + camera noise + push</td><td>20/20</td><td>1.4 / 2.9 cm</td><td>1.4 cm</td><td>6.1</td></tr></table>
+      <p class="note">Parked = within 5 cm and 5&deg; of the target. NEES = mean over the dock-frame part of each run (3 = consistent).</p>
+      <ul>
+        <li><strong>Push:</strong> odometry misses the shove (the wheels slip); 2.5 readings per run failed the gate, and the filter re-fixed from the tag in 5 of 20 runs.</li>
+        <li><strong>Camera blocked:</strong> the estimate error near the dock rose from 1.2 to 2.0 cm while driving on odometry, then recovered.</li>
+        <li><strong>Limits:</strong> NEES rises with gyro bias (not modelled; a bias state would fix it), and obstacle avoidance is local, with no map.</li>
+      </ul>
+      <div id="video"></div>
+      <p><strong>Videos</strong> (<!-- TODO: link your narrated 5-minute demo video here -->overhead view, camera, and estimate error with &plusmn;2&sigma; band):</p>
+      <figure><video controls preload="metadata" src="media/docking_nominal.mp4" style="width:100%;border-radius:8px"></video>
+        <figcaption>Nominal run.</figcaption></figure>
+      <figure><video controls preload="metadata" src="media/docking_push.mp4" style="width:100%;border-radius:8px"></video>
+        <figcaption>Pushed sideways 1.5 m from the dock: the error jumps, the uncertainty grows, and the camera pulls the estimate back.</figcaption></figure>
+    </section>
+
+    <section>
+      <h2>Run it</h2>
+      <p><strong>Colab:</strong> open <a href="https://colab.research.google.com/github/anne-sharon/Mobile-Robot-docking/blob/main/notebooks/run_docking.ipynb"><code>notebooks/run_docking.ipynb</code></a> and choose <em>Runtime &rarr; Run all</em>.<br>
+      <strong>Locally:</strong> <code>pip install -r requirements.txt</code>, then <code>python -m eval.run_episode</code> (one scored run), <code>python -m eval.run_batch</code> (all 120 runs) or <code>pytest tests</code>.</p>
+    </section>
+
+    <section>
+      <h2>Team and contributions</h2>
+      <div class="team">
+        <div class="member">
+          <h3>Anne</h3>
+          <p class="id">Student ID: 26202693</p>
+          <p>In charge of the simulated room (the TurtleBot3, boxes, sofa, coffee table and the ArUco-marked dock), setting up the GitHub repository, project page and Colab environment, and ArUco marker detection. Also leads the state-space model and the robustness results in the viva.</p>
+        </div>
+        <div class="member">
+          <h3>Vishnu</h3>
+          <p class="id">Student ID: 26224699</p>
+          <p>In charge of sensing (camera calibration and sensor noise characterisation), the EKF, and the LQR controller with the planner that feeds it. Wrote the marker detection test (tests/test_marker_detection.py).</p>
+        </div>
+      </div>
+      <h3 style="margin-top:20px">Generative AI declaration</h3>
+      <p><strong>Tool:</strong> Claude (Anthropic), via claude.ai. <strong>Purpose:</strong> Claude was used throughout the project. It wrote the code for the state-space model and analysis (src/model.py), the EKF (src/estimator.py), the planner (src/planner.py), the LQR controller (src/control.py), the camera calibration and noise characterisation, the EKF tuning sweep, the robustness study, the video, screenshot and plotting scripts, and the unit tests in tests/test_model_ekf.py, and it drafted the text of this page and our viva study notes. It also committed this work to the repository through pull requests, which we reviewed and merged. We set the task and requirements, chose what to change, and asked Claude to explain each design choice. All numbers and plots on this page were produced by running the code in this repository.</p>
+    </section>
+
+    <section id="refs">
+      <h2>References</h2>
+      <ol class="refs">
+        <li id="r1">ROBOTIS, <a href="https://emanual.robotis.com/docs/en/platform/turtlebot3/features/">TurtleBot3 e-Manual: Features (hardware specifications)</a>.</li>
+        <li id="r2">ROBOTIS, <a href="https://github.com/ROBOTIS-GIT/turtlebot3/blob/humble/turtlebot3_bringup/param/burger.yaml">turtlebot3_bringup/param/burger.yaml</a> (wheel separation and radius).</li>
+        <li id="r3">E. Todorov, T. Erez and Y. Tassa, "MuJoCo: A physics engine for model-based control", IEEE/RSJ IROS, 2012, pp. 5026&ndash;5033 (<a href="https://github.com/google-deepmind/mujoco">MuJoCo repository</a>).</li>
+        <li id="r4">Z. Zhang, <a href="https://www.microsoft.com/en-us/research/?p=145334">"A flexible new technique for camera calibration"</a>, IEEE Trans. Pattern Analysis and Machine Intelligence, vol. 22, pp. 1330&ndash;1334.</li>
+        <li id="r5">OpenCV, <a href="https://docs.opencv.org/4.12.0/d5/d1f/calib3d_solvePnP.html">Perspective-n-Point (PnP) pose computation</a> (SOLVEPNP_IPPE_SQUARE, after T. Collins and A. Bartoli, "Infinitesimal Plane-Based Pose Estimation").</li>
+        <li id="r6">J. P. Hespanha, <a href="https://metr4202.uqcloud.net/2014/lectures/Hespanha-Linear%20Systems-Part%20IV.pdf">Linear Systems Theory, Lecture 20: Linear Quadratic Regulation</a>, &sect;20.7 (Bryson's rule).</li>
+        <li id="r7"><a href="https://kalman-filter.com/normalized-estimation-error-squared">Normalized Estimation Error Squared (NEES)</a>, after Y. Bar-Shalom et al., <em>Estimation with Applications to Tracking and Navigation</em>.</li>
+        <li id="r8">NIST/SEMATECH e-Handbook of Statistical Methods, <a href="https://itl.nist.gov/div898/handbook/eda/section3/eda3674.htm">Critical values of the chi-square distribution</a>.</li>
+      </ol>
+      <p class="note">All other numbers on this page come from running the code in this repository.</p>
+    </section>
+  </main>
+
+  <footer>
+    Anne (26202693) &amp; Vishnu (26224699) · 41014 Sensors and Control in Mechatronics Systems
+  </footer>
+</body>
+</html>
