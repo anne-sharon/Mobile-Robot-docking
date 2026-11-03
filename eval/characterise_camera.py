@@ -1,8 +1,3 @@
-"""How accurate is the camera's marker measurement?  (Sets the EKF measurement noise R.)
-Run from the repo root:  python -m eval.characterise_camera
-Places the robot at many random poses facing the dock (evaluation only: uses the simulator's true pose to
-compute the true measurement), measures the marker with the calibrated camera, and fits error vs distance.
-Writes models/camera_noise.json and eval/results/camera_noise.png."""
 import os, json, math
 import numpy as np
 import matplotlib
