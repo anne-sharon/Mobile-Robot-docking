@@ -1,9 +1,3 @@
-"""Screenshots of one docking run for the project page (evaluation only).
-Run from the repo root after `python -m eval.make_video nominal`:  python -m eval.episode_screenshots
-Reads eval/results/docking_nominal.mp4 and writes
-  media/episode_stages.png : the overhead view at four planner stages (2 x 2)
-  media/episode_parked.png : the final frame (parked, camera view, estimate error with its 2-sigma band)
-"""
 import sys
 import cv2
 import numpy as np
