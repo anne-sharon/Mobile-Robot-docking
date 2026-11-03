@@ -1,8 +1,3 @@
-"""Plots for the project page (evaluation only).
-Run from the repo root:  python -m eval.plot_ekf
-  eval/results/ekf_error.png   : one nominal run -- EKF error in x, y, heading with the +-2 sigma band, and NEES
-  eval/results/ekf_tuning.png  : the Q/R tuning trade-off (needs eval/results/ekf_tuning.csv from eval.tune_ekf)
-"""
 import os, csv, math
 import numpy as np
 import matplotlib
