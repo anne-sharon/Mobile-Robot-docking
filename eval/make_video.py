@@ -1,13 +1,3 @@
-"""Record a video of one docking run: true pose vs EKF estimate with its uncertainty. Evaluation only.
-Run from the repo root:  python -m eval.make_video [condition]      (nominal | push | occlusion | combined ...)
-Saves eval/results/docking_<condition>.mp4
-
-Layout
-  top-left : overhead view. Coloured line = TRUE path (colour = planner stage). White line = EKF ESTIMATE,
-             white ellipse = 2-sigma position uncertainty from the EKF covariance P.
-  top-right: the robot's camera; the marker is outlined green when detected.
-  bottom   : estimation error (estimate - truth) in x, y and heading, with the EKF's +-2 sigma band.
-"""
 import os, sys, math
 import cv2
 import numpy as np
