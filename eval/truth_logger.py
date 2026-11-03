@@ -1,4 +1,3 @@
-"""Ground-truth logger.  Evaluation only: estimator.py, planner.py, control.py and marker.py must never import this file."""
 import csv, math
 import numpy as np
 from src.judge import Judge
