@@ -1,8 +1,3 @@
-"""Tune the EKF noise scales with a consistency test.
-Run from the repo root:  python -m eval.tune_ekf
-For each (Q_SCALE, R_SCALE) pair, runs docking episodes and reports the mean NEES in the dock frame (a consistent
-3-state filter averages 3), the mean and final pose error, and whether the robot parked. Evaluation only.
-Writes eval/results/ekf_tuning.csv."""
 import os, csv, itertools
 import numpy as np
 from src.world import Sim
