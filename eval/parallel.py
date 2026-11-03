@@ -1,5 +1,3 @@
-"""Run many episodes, each in its own short-lived process (the offscreen renderer does not give all of its memory
-back, so long batches in one process slowly fill the RAM). Evaluation only."""
 import multiprocessing as mp
 
 
