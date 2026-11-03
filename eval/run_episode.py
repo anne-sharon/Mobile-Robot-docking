@@ -1,6 +1,3 @@
-"""Main loop: sense -> estimate -> plan -> control -> step the simulator.
-Run from the repo root:  python -m eval.run_episode [seconds]
-This is the only file that touches both the simulator and the robot code."""
 import os, sys
 from src.world import Sim
 from src.contracts import CONTROL_DT, SENSE_EVERY
