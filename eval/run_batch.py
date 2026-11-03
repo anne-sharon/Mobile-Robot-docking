@@ -1,21 +1,3 @@
-"""Repeated trials under varied conditions (robustness study). Evaluation only.
-Run from the repo root:  python -m eval.run_batch            (all conditions, 20 start poses each, ~10 min)
-                         python -m eval.run_batch nominal     (one condition)
-Writes eval/results/batch_<condition>.csv (one row per run) and eval/results/batch_summary.csv.
-
-Conditions (the disturbance is injected by this file, between the simulator and the robot; the robot code is
-unchanged and never told which condition it is in):
-  nominal     : as simulated
-  gyro_noise  : gyro yaw rate + white noise (0.05 rad/s) + constant bias (0.01 rad/s, ~0.6 deg/s)
-  camera_noise: Gaussian pixel noise (sigma = 12 grey levels) on every camera image
-  push        : when the robot first comes within 1.5 m of the dock it is shoved: 0.5 m/s sideways and 2 rad/s
-                yaw for one instant (the wheels slip, so the encoders do not see the sideways part)
-  occlusion   : when the robot first comes within 2.0 m of the dock the camera goes blank for 6 s
-                (marker blocked / out of view during the final approach)
-The triggers use the simulator's true position (evaluation code only) so that every run is disturbed at the
-same point of the task; each run records whether and when its disturbance fired.
-  combined    : gyro_noise + camera_noise + push together
-"""
 import os, sys, csv, math
 import numpy as np
 
